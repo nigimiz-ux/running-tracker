@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#4f46e5" />
+  
+  <text x="52%" y="54%" font-size="220" text-anchor="middle" dominant-baseline="middle" opacity="0.2">👟</text>
+  <text x="50%" y="52%" font-size="220" text-anchor="middle" dominant-baseline="middle">👟</text>
+  
+  <path d="M 120 400 L 392 400" stroke="#10b981" stroke-width="24" stroke-linecap="round"/>
+  <path d="M 170 450 L 342 450" stroke="#10b981" stroke-width="24" stroke-linecap="round"/>
+</svg>
