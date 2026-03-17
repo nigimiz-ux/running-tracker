@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 러닝화 트래커</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800 font-sans p-4">
+
+    <div id="loginScreen"
+        class="max-w-md mx-auto mt-20 text-center bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+        <div class="text-6xl mb-4">👟</div>
+        <h1 class="text-2xl font-extrabold text-indigo-600 mb-2">My Running Tracker</h1>
+        <p class="text-sm text-slate-500 mb-8">나만의 러닝화 마일리지를 관리하세요!</p>
+        <button onclick="loginWithGoogle()"
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg shadow transition duration-200 flex justify-center items-center gap-2">
+            <svg class="w-5 h-5 bg-white rounded-full p-0.5" viewBox="0 0 24 24">
+                <path fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+            </svg>
+            Google 계정으로 로그인
+        </button>
+    </div>
+
+    <div id="mainApp" class="max-w-md mx-auto mt-6 mb-12 hidden">
+
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-extrabold text-indigo-600 flex items-center gap-2">
+                🏃‍♂️ Tracker
+            </h1>
+            <button onclick="logout()"
+                class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-1.5 px-3 rounded-full transition">
+                로그아웃
+            </button>
+        </div>
+
+        <div class="bg-indigo-50 p-5 rounded-2xl shadow-sm border border-indigo-200 mb-6 relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 text-6xl opacity-10 pointer-events-none">🔥</div>
+            <h2 class="font-bold text-lg mb-4 text-indigo-800 relative">땀 흘린 기록 저장</h2>
+
+            <div class="space-y-3 relative">
+                <div>
+                    <label class="text-xs font-bold text-indigo-500">달린 날짜</label>
+                    <input type="date" id="runDate"
+                        class="w-full mt-1 p-2 border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700 bg-white">
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-indigo-500">어떤 신발을 신고 뛰셨나요?</label>
+                    <select id="shoeSelect"
+                        class="w-full mt-1 p-2 border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white font-medium text-slate-700">
+                        <option value="">신발을 불러오는 중...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-indigo-500">달린 거리 (km)</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" step="0.1" id="runDistance"
+                            class="w-full mt-1 p-2 border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="예: 5.5">
+                        <span class="text-indigo-500 font-bold mt-1">km</span>
+                    </div>
+                </div>
+                <button onclick="recordRun()"
+                    class="w-full mt-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-lg shadow transition duration-200 active:scale-95">
+                    🚀 기록 저장하고 마일리지 올리기!
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6">
+            <h2 class="font-bold text-lg mb-4 text-slate-700">👟 새 러닝화 등록</h2>
+            <div class="space-y-3">
+                <div>
+                    <input type="text" id="shoeName"
+                        class="w-full mt-1 p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        placeholder="러닝화 이름 (예: 베이퍼플라이 3)">
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="targetMileage"
+                        class="w-full mt-1 p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        placeholder="목표 수명 (예: 500)">
+                    <span class="text-slate-500 font-bold text-sm mt-1">km</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" step="0.1" id="initialMileage"
+                        class="w-full mt-1 p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        placeholder="기존에 뛴 거리 (새 신발은 비워두세요)">
+                    <span class="text-slate-500 font-bold text-sm mt-1">km</span>
+                </div>
+                <button onclick="registerShoe()"
+                    class="w-full mt-2 bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-lg shadow transition duration-200 text-sm">
+                    ➕ 신발장에 추가
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <div class="flex justify-between items-end mb-3 px-1">
+                <h2 class="font-bold text-lg text-slate-700">🗄️ 나의 신발장</h2>
+            </div>
+            <div id="shoeList" class="space-y-3">
+                <p class="text-sm text-slate-400 text-center py-5">로딩 중...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ===================================================================
+        // 🚨 [필수] 임원님의 파이어베이스 설정값을 여기에 덮어쓰세요!
+        // ===================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcQNHIUYSbJe8qnc4EqzRpGmQ4qufz7Ok",
+            authDomain: "aje-executive-db.firebaseapp.com",
+            databaseURL: "https://aje-executive-db-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "aje-executive-db",
+            storageBucket: "aje-executive-db.firebasestorage.app",
+            messagingSenderId: "25421275822",
+            appId: "1:25421275822:web:8de86422d025e2cd25c33f"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const database = firebase.database();
+        const auth = firebase.auth();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+        // 앱 켜질 때 오늘 날짜로 캘린더 기본값 세팅하기!
+        document.getElementById('runDate').valueAsDate = new Date();
+
+        // 🌟 로그인 / 로그아웃
+        function loginWithGoogle() {
+            auth.signInWithPopup(googleProvider).catch(error => alert("로그인 실패: " + error.message));
+        }
+        function logout() {
+            auth.signOut().then(() => alert("로그아웃 되었습니다."));
+        }
+
+        // 🚨 인증 상태 감시자
+        auth.onAuthStateChanged((user) => {
+            const loginScreen = document.getElementById('loginScreen');
+            const mainApp = document.getElementById('mainApp');
+
+            if (user) {
+                loginScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                loadShoes();
+            } else {
+                loginScreen.classList.remove('hidden');
+                mainApp.classList.add('hidden');
+            }
+        });
+
+        // 🌟 기능 1: 신발 등록하기 (기존 마일리지 적용)
+        function registerShoe() {
+            const name = document.getElementById('shoeName').value;
+            const target = document.getElementById('targetMileage').value;
+            const initial = document.getElementById('initialMileage').value; // 새로 추가된 입력칸
+
+            if (!name || !target) { alert("이름과 목표 수명을 모두 입력해주세요!"); return; }
+
+            // 기존 마일리지를 입력 안 했으면 0km, 입력했으면 그 숫자로 시작!
+            const startingMileage = initial ? parseFloat(initial) : 0;
+
+            const shoeData = {
+                name: name,
+                targetMileage: Number(target),
+                currentMileage: startingMileage, // 👈 0 대신 입력한 값 적용!
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            database.ref('my_shoes').push(shoeData).then(() => {
+                alert("✅ 신발이 성공적으로 추가되었습니다!");
+                document.getElementById('shoeName').value = '';
+                document.getElementById('targetMileage').value = '';
+                document.getElementById('initialMileage').value = '';
+            });
+        }
+
+        // 🌟 기능 2: 신발장 불러오기 (이전과 동일)
+        function loadShoes() {
+            const shoeList = document.getElementById('shoeList');
+            const shoeSelect = document.getElementById('shoeSelect');
+
+            database.ref('my_shoes').on('value', (snapshot) => {
+                shoeList.innerHTML = '';
+                shoeSelect.innerHTML = '<option value="">👇 신발을 선택해주세요</option>';
+
+                if (!snapshot.exists()) {
+                    shoeList.innerHTML = '<p class="text-sm text-slate-400 text-center py-5 bg-white rounded-xl border border-slate-200">아직 등록된 러닝화가 없습니다.</p>';
+                    return;
+                }
+
+                snapshot.forEach((childSnapshot) => {
+                    const id = childSnapshot.key;
+                    const data = childSnapshot.val();
+
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.text = `[${data.currentMileage}km] ${data.name}`;
+                    shoeSelect.appendChild(option);
+
+                    let percent = (data.currentMileage / data.targetMileage) * 100;
+                    if (percent > 100) percent = 100;
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-end mb-2">
+                            <h3 class="font-bold text-slate-800 text-lg">${data.name}</h3>
+                            <span class="text-xs font-bold text-slate-500">
+                                <span class="text-indigo-600 text-base">${data.currentMileage}</span> / ${data.targetMileage} km
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2.5 mt-2 overflow-hidden">
+                            <div class="bg-indigo-500 h-2.5 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                        </div>
+                    `;
+                    shoeList.appendChild(card);
+                });
+            });
+        }
+
+        // 🌟 기능 3: 달리기 기록 저장 (날짜 추가됨!)
+        function recordRun() {
+            const shoeId = document.getElementById('shoeSelect').value;
+            const distanceStr = document.getElementById('runDistance').value;
+            const runDate = document.getElementById('runDate').value; // 👈 달린 날짜 가져오기
+            const distance = parseFloat(distanceStr);
+
+            if (!shoeId) { alert("신발을 선택해주세요!"); return; }
+            if (!distance || distance <= 0) { alert("올바른 거리를 입력해주세요!"); return; }
+            if (!runDate) { alert("날짜를 선택해주세요!"); return; }
+
+            const shoeRef = database.ref('my_shoes/' + shoeId);
+
+            shoeRef.once('value').then((snapshot) => {
+                const currentData = snapshot.val();
+                const newMileage = parseFloat((currentData.currentMileage + distance).toFixed(1));
+
+                // 1. 신발장 마일리지 덮어쓰기
+                shoeRef.update({ currentMileage: newMileage });
+
+                // 2. [비밀 장부] 나중에 CSV 엑셀 다운로드를 위해 개별 달리기 기록도 몰래 저장해 둡니다!
+                database.ref('run_history').push({
+                    shoeName: currentData.name,
+                    shoeId: shoeId,
+                    distance: distance,
+                    date: runDate, // 내가 캘린더에서 선택한 날짜
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                alert(`🔥 나이스 런! [${currentData.name}] 누적 마일리지가 ${newMileage}km로 올랐습니다!`);
+                document.getElementById('runDistance').value = '';
+                document.getElementById('shoeSelect').value = '';
+            });
+        }
+    </script>
+</body>
+
+</html>
