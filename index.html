@@ -5,19 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>나의 러닝화 트래커</title>
+
     <link rel="manifest" href="manifest.json">
-<script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('요원 투입 성공!', reg))
-            .catch(err => console.log('요원 투입 실패...', err));
-        });
-      }    
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('요원 투입 성공!', reg))
+                    .catch(err => console.log('요원 투입 실패...', err));
+            });
+        }
+    </script>
 </head>
 
 <body class="bg-slate-100 text-slate-800 font-sans p-4">
