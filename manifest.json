@@ -3,13 +3,13 @@
     "short_name": "러닝 트래커",
     "icons": [
         {
-            "src": "icon.svg",
-            "sizes": "any",
-            "type": "image/svg+xml",
+            "src": "icon.png",
+            "sizes": "1024x1024",
+            "type": "image/png",
             "purpose": "any maskable"
         }
     ],
-    "start_url": "./l",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#4f46e5"
